@@ -26,4 +26,4 @@ jobs:
       run: dotnet build ./ConsulationAppBackend/ConsulationApllication.sln --no-restore --configuration Release
 
     - name: Run tests
-      run: dotnet test ./ConsulationAppBackend/TestConsultationApplication.Tests/TestConsultationApplication.Tests.csproj --no-build --configuration Release
+      run: dotnet test ./ConsulationAppBackend/TestConsultationApplication.Tests/TestConsultationApplication.Tests.csproj --configuration Release
