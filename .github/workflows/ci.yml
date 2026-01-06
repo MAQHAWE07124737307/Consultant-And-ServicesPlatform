@@ -20,10 +20,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore dependencies
-      run: dotnet restore ConsultationAppBackend/ConsulationAplication.sln
+      run: dotnet restore ConsulationAppBackend/ConsulationApplication.sln
 
     - name: Build solution
-      run: dotnet build ConsultationAppBackend/ConsulationAplication.sln --no-restore --configuration Release
+      run: dotnet build ConsulationAppBackend/ConsulationApplication.sln --no-restore --configuration Release
 
     - name: Run tests
-      run: dotnet test ConsultationAppBackend/TestConsultationApplication.Tests/TestConsultationApplication.Tests.csproj --no-build --configuration Release
+      run: dotnet test ConsulationAppBackend/TestConsulationApplication.Tests/TestConsulationApplication.Tests.csproj --no-build --configuration Release
