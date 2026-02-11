@@ -31,6 +31,7 @@ namespace ConsulationApplication.Controllers
         }
 
 
+
         // GET: api/Slots/by-consultant/3
         [HttpGet("by-consultant/{consultantId}")]
         public async Task<IActionResult> GetSlotsByConsultant(string consultantId)

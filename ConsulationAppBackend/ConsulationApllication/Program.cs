@@ -26,7 +26,8 @@ builder.Services.AddIdentity<AppUser, IdentityRole>()
     .AddDefaultTokenProviders();
 
 // JWT Authentication
-var key = Encoding.UTF8.GetBytes(builder.Configuration["JWT:Key"]);
+var key = Convert.FromBase64String(builder.Configuration["Jwt:Key"]);
+
 // i added this 1
 builder.Services.AddCors(options =>
 {
@@ -81,8 +82,9 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = builder.Configuration["JWT:Issuer"],
-        ValidAudience = builder.Configuration["JWT:Audience"],
+        ValidIssuer = builder.Configuration["Jwt:Issuer"],
+        ValidAudience = builder.Configuration["Jwt:Audience"],
+
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });

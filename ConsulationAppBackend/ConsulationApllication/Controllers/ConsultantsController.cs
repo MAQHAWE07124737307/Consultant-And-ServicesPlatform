@@ -2,7 +2,6 @@
 using ConsulationApplication.DTOs;
 using ConsulationApplication.Models;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -59,7 +58,7 @@ namespace ConsulationApplication.Controllers
 
             var consultant = new Consultant
             {
-                
+
                 UserId = userId,
                 Specialization = dto.Specialization,
                 Qualification = dto.Qualification,
@@ -87,16 +86,31 @@ namespace ConsulationApplication.Controllers
 
             return Ok("Consultant application submitted. Awaiting admin approval.");
         }
-        [HttpGet("consultant/{consultantId}")]
-        public async Task<IActionResult> GetConsultantBookings(string consultantId)
+
+
+
+        [HttpGet("consultant-bookings")]
+        [Authorize] // ✅ Require authentication
+        public async Task<IActionResult> GetConsultantBookings()
         {
+            // Extract the user ID from the JWT token
+            var loggedInUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            if (loggedInUserId == null)
+                return Unauthorized("Invalid token");
+
+            // Optional: ensure the user is actually a consultant
+            var userRoles = User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value);
+            if (!userRoles.Contains("Consultant"))
+                return Forbid("You are not a consultant");
+
+            // Get bookings assigned to this consultant
             var bookings = await _context.Bookings
-.Where(b => b.ConsultantId == consultantId)
-.Include(b => b.Client)        // AppUser for client
-.Include(b => b.Consultant)    // AppUser for consultant
-.Include(b => b.Service)
-.Include(b => b.Slot)
-.ToListAsync();
+                .Where(b => b.ConsultantId == loggedInUserId)
+                .Include(b => b.Client)
+                .Include(b => b.Consultant)
+                .Include(b => b.Service)
+                .Include(b => b.Slot)
+                .ToListAsync();
 
             var dtoList = bookings.Select(b => new BookingResponseDto
             {
@@ -111,6 +125,11 @@ namespace ConsulationApplication.Controllers
 
             return Ok(dtoList);
         }
+
+
+
+
+
 
 
         [HttpPut("{bookingId}/status")]
@@ -128,7 +147,7 @@ namespace ConsulationApplication.Controllers
                 return BadRequest(new { message = "Booking already processed" });
 
             booking.Status = dto.Status;
-            
+
 
             await _context.SaveChangesAsync();
 
