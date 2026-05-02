@@ -53,7 +53,7 @@ jobs:
 
     - name: Build Docker image
       env:
-        DOCKERFILE_PATH: ./ConsulationAppBackend/Dockerfile
+        DOCKERFILE_PATH: ./ConsulationAppBackend/ConsulationApplication/Dockerfile
       run: docker build -t qhawe911/lwazi:latest -f $DOCKERFILE_PATH .
 
     - name: Push Docker image
