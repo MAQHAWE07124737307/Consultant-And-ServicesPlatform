@@ -14,7 +14,7 @@
     "date-fns": "^4.1.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.1.0",
-    "react-big-calendar": "^1.19.4",
+    "react-big-calendar": "^1.20.0",
     "react-bootstrap": "^2.10.10",
     "react-calendar": "^6.0.0",
     "react-chartjs-2": "^5.3.0",
