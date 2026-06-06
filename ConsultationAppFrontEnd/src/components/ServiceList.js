@@ -38,7 +38,7 @@ const ServiceList = ({ onSelect }) => {
 
   return (
     <div className="container mt-4">
-      <h3 className="mb-4">📚 Book a Service</h3>
+      <h3 className="mb-4">Book a Service</h3>
 
       {/* Search bar */}
       <Form className="mb-4" onSubmit={handleSearchSubmit}>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const ConsultantSidebar = () => {
   return (
-    <div className="bg-dark text-white vh-100 p-3" style={{ width: '250px' }}>
+    <div className="bg-dark text-white vh-100 d-flex flex-column p-3" style={{ width: '250px' }}>
       <h4 className="mb-4">
         <i className="fas fa-user-tie me-2" />
         Consultant Panel
@@ -28,10 +28,8 @@ const ConsultantSidebar = () => {
 
         <Nav.Link as={Link} to="/profile" className="text-white">
           <i className="fas fa-concierge-bell me-2" />
-         Profile
+          Profile
         </Nav.Link>
-
-        
 
         <Nav.Link as={Link} to="/client-reviews" className="text-white">
           <i className="fas fa-star me-2" />
@@ -39,7 +37,8 @@ const ConsultantSidebar = () => {
         </Nav.Link>
       </Nav>
 
-      <div className="mt-4">
+      {/* Logout always at bottom */}
+      <div className="mt-auto">
         <Nav.Link as={Link} to="/logout" className="text-white">
           <i className="fas fa-sign-out-alt me-2" />
           Logout

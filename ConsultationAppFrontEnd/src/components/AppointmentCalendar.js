@@ -34,7 +34,7 @@ const AppointmentCalendar = ({ bookings }) => {
 
   return (
     <div className="bg-white p-3 rounded shadow-sm" style={{ height: '600px' }}>
-      <h4 className="mb-3">📅 Bookings Calendar</h4>
+      <h4 className="mb-3">Bookings Calendar</h4>
       <Calendar
         localizer={localizer}
         events={events}

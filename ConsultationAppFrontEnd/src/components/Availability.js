@@ -1,20 +1,58 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Form, Row, Col, Button, Card } from 'react-bootstrap';
 
-const initialAvailability = [
-  { day: 'Monday', available: true, start: '09:00', end: '17:00' },
-  { day: 'Tuesday', available: true, start: '09:00', end: '17:00' },
-  { day: 'Wednesday', available: true, start: '09:00', end: '17:00' },
-  { day: 'Thursday', available: true, start: '09:00', end: '17:00' },
-  { day: 'Friday', available: true, start: '09:00', end: '17:00' },
+const defaultDays = [
+  { day: 'Monday', available: false, start: '09:00', end: '17:00' },
+  { day: 'Tuesday', available: false, start: '09:00', end: '17:00' },
+  { day: 'Wednesday', available: false, start: '09:00', end: '17:00' },
+  { day: 'Thursday', available: false, start: '09:00', end: '17:00' },
+  { day: 'Friday', available: false, start: '09:00', end: '17:00' },
   { day: 'Saturday', available: false, start: '09:00', end: '12:00' },
   { day: 'Sunday', available: false, start: '09:00', end: '12:00' },
 ];
 
-const AvailabilityManager = () => {
-  const [availability, setAvailability] = useState(initialAvailability);
+const AvailabilityManager = ({ consultantId }) => {
+  const [availability, setAvailability] = useState(defaultDays);
   const [saved, setSaved] = useState(false);
 
+  // 1️⃣ Fetch backend slots
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      try {
+        const res = await fetch(`/api/slots/by-consultant/${consultantId}`);
+        if (!res.ok) throw new Error('Failed to fetch availability');
+
+        const data = await res.json();
+
+        // Merge backend slots with default days
+        const formatted = defaultDays.map(day => {
+          const slotForDay = data.find(s => {
+            const weekday = new Date(s.startTime).toLocaleString('en-US', { weekday: 'long' });
+            return weekday === day.day;
+          });
+
+          if (slotForDay) {
+            return {
+              day: day.day,
+              start: slotForDay.startTime.slice(11,16), // HH:MM
+              end: slotForDay.endTime.slice(11,16),
+              available: true
+            };
+          }
+
+          return day; // keep default
+        });
+
+        setAvailability(formatted);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+
+    fetchAvailability();
+  }, [consultantId]);
+
+  // 2️⃣ Update toggle or time
   const updateDay = (index, field, value) => {
     const newAvail = [...availability];
     newAvail[index][field] = field === 'available' ? value.target.checked : value.target.value;
@@ -22,9 +60,30 @@ const AvailabilityManager = () => {
     setSaved(false);
   };
 
-  const handleSave = () => {
-    console.log('🗂️ Saved Availability:', availability);
-    setSaved(true);
+  // 3️⃣ Save to backend
+  const handleSave = async () => {
+    const payload = availability.map(slot => ({
+      dayOfWeek: slot.day,
+      startTime: slot.start,
+      endTime: slot.end,
+      isAvailable: slot.available
+    }));
+
+    try {
+      const res = await fetch(`/api/consultant-availability/${consultantId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error('Failed to save availability');
+
+      setSaved(true);
+      console.log('🗂️ Availability saved to backend');
+    } catch (err) {
+      console.error(err);
+      alert('Error saving availability to backend');
+    }
   };
 
   return (
@@ -65,7 +124,7 @@ const AvailabilityManager = () => {
         <Button variant="primary" onClick={handleSave}>
           Save Availability
         </Button>
-        {saved && <div className="text-success mt-2">✅ Availability saved (locally)</div>}
+        {saved && <div className="text-success mt-2">✅ Availability saved to backend</div>}
       </Card>
     </div>
   );

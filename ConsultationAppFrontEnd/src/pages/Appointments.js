@@ -5,73 +5,80 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 const AppointmentsPage = () => {
   const [appointments, setAppointments] = useState([]);
   const [statusFilter, setStatusFilter] = useState('');
-  const [departmentFilter, setDepartmentFilter] = useState('');
   const [dateFilter, setDateFilter] = useState('');
 
   useEffect(() => {
-    axios.get('http://localhost:5062/api/AppointmentsControler/GetFormattedAppointments')
-      .then(res => setAppointments(res.data))
-      .catch(err => console.error('Failed to fetch appointments:', err));
+    const fetchAppointments = async () => {
+      const token = localStorage.getItem('token'); // get the JWT
+      if (!token) return console.error('No token found');
+
+      try {
+        const res = await axios.get(
+          'https://localhost:7280/api/Consultants/consultant/c542ca7a-a6e2-41a0-99c2-33cb9afced41',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`, // send token in header
+            },
+          }
+        );
+        setAppointments(res.data);
+      } catch (err) {
+        console.error('Failed to fetch bookings:', err.response || err);
+      }
+    };
+
+    fetchAppointments();
   }, []);
 
+  // Filter appointments by status or date
   const filteredAppointments = appointments.filter((a) => {
     return (
-      (statusFilter ? a.status.toLowerCase() === statusFilter.toLowerCase() : true) &&
-      (departmentFilter ? a.department === departmentFilter : true) &&
-      (dateFilter ? a.date === dateFilter : true)
+      (statusFilter ? a.status === parseInt(statusFilter) : true) &&
+      (dateFilter ? new Date(a.slotStart).toISOString().split('T')[0] === dateFilter : true)
     );
   });
 
-  const total = appointments.length;
-  const confirmed = appointments.filter((a) => a.status.toLowerCase() === 'confirmed').length;
-  const pending = appointments.filter((a) => a.status.toLowerCase() === 'pending').length;
-  const cancelled = appointments.filter((a) => a.status.toLowerCase() === 'cancelled').length;
+  // Convert status number to string
+  const statusToString = (status) => {
+    switch (status) {
+      case 0: return 'Pending';
+      case 1: return 'Approved';
+      case 2: return 'Rejected';
+      default: return 'Unknown';
+    }
+  };
 
-  const departments = [...new Set(appointments.map(a => a.department).filter(Boolean))];
+  const statusToColor = (status) => {
+    switch (status) {
+      case 0: return 'warning';
+      case 1: return 'success';
+      case 2: return 'danger';
+      default: return 'secondary';
+    }
+  };
 
   return (
     <div className="container py-4">
-      {/* Summary Cards */}
-      <div className="row g-3 mb-4">
-        <SummaryCard label="Total Bookings" count={total} color="primary" />
-        <SummaryCard label="Confirmed" count={confirmed} color="success" />
-        <SummaryCard label="Pending" count={pending} color="warning" />
-        <SummaryCard label="Cancelled" count={cancelled} color="danger" />
-      </div>
-
       {/* Filter Row */}
       <div className="row g-3 mb-4">
-        <div className="col-12">
-          <div className="d-flex flex-wrap gap-3">
-            <select
-              className="form-select w-auto"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="">All Statuses</option>
-              <option value="Confirmed">Confirmed</option>
-              <option value="Pending">Pending</option>
-              <option value="Cancelled">Cancelled</option>
-            </select>
+        <div className="col-12 d-flex gap-3">
+          <select
+            className="form-select w-auto"
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+          >
+            <option value="">All Statuses</option>
+            <option value="0">Pending</option>
+            <option value="1">Approved</option>
+            <option value="2">Rejected</option>
+          </select>
 
-            <select
-              className="form-select w-auto"
-              value={departmentFilter}
-              onChange={(e) => setDepartmentFilter(e.target.value)}
-            >
-              <option value="">All Departments</option>
-              {departments.map((dept, i) => (
-                <option key={i} value={dept}>{dept}</option>
-              ))}
-            </select>
-
-            <input
-              type="date"
-              className="form-control w-auto"
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-          </div>
+          <input
+            type="date"
+            className="form-control w-auto"
+            value={dateFilter}
+            onChange={(e) => setDateFilter(e.target.value)}
+          />
         </div>
       </div>
 
@@ -81,36 +88,33 @@ const AppointmentsPage = () => {
           <thead className="table-light text-uppercase">
             <tr>
               <th>ID</th>
-              <th>Client</th>
-              <th>Department</th>
-              <th>Service</th>
               <th>Consultant</th>
-              <th>Date</th>
-              <th>Time</th>
+              <th>Service</th>
+              <th>Start</th>
+              <th>End</th>
               <th>Status</th>
             </tr>
           </thead>
           <tbody>
-            {filteredAppointments.map((a, i) => (
-              <tr key={i}>
-                <td>{a.id}</td>
-                <td>{a.user}</td>
-                <td>{a.department || '—'}</td>
-                <td>{a.service}</td>
-                <td>{a.consultant}</td>
-                <td>{a.date}</td>
-                <td>{a.time}</td>
-                <td>
-                  <span className={`badge bg-${statusToColor(a.status)}`}>
-                    {a.status}
-                  </span>
-                </td>
-              </tr>
-            ))}
-            {filteredAppointments.length === 0 && (
+            {filteredAppointments.length > 0 ? (
+              filteredAppointments.map((a) => (
+                <tr key={a.id}>
+                  <td>{a.id}</td>
+                  <td>{a.consultantName}</td>
+                  <td>{a.serviceName}</td>
+                  <td>{new Date(a.slotStart).toLocaleString()}</td>
+                  <td>{new Date(a.slotEnd).toLocaleString()}</td>
+                  <td>
+                    <span className={`badge bg-${statusToColor(a.status)}`}>
+                      {statusToString(a.status)}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            ) : (
               <tr>
-                <td colSpan="8" className="text-center text-muted">
-                  No bookings found for selected filters.
+                <td colSpan="6" className="text-center text-muted">
+                  No bookings found.
                 </td>
               </tr>
             )}
@@ -119,26 +123,6 @@ const AppointmentsPage = () => {
       </div>
     </div>
   );
-};
-
-const SummaryCard = ({ label, count, color }) => (
-  <div className="col-6 col-md-3">
-    <div className={`card text-${color} border-${color}`}>
-      <div className="card-body text-center">
-        <h6 className="card-title text-uppercase">{label}</h6>
-        <h2 className="card-text fw-bold">{count}</h2>
-      </div>
-    </div>
-  </div>
-);
-
-const statusToColor = (status) => {
-  switch (status.toLowerCase()) {
-    case 'confirmed': return 'success';
-    case 'pending': return 'warning';
-    case 'cancelled': return 'danger';
-    default: return 'secondary';
-  }
 };
 
 export default AppointmentsPage;

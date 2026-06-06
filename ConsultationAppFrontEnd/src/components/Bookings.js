@@ -33,13 +33,35 @@ const MyBookings = () => {
     fetchBookings();
   }, []);
 
+  // 🔎 Map numeric status to text
+  const getStatusText = (status) => {
+    switch (status) {
+      case 0: return 'Pending';
+      case 1: return 'Accepted';
+      case 2: return 'Cancelled';
+      default: return 'Unknown';
+    }
+  };
+
+  // 🔎 Map numeric status to badge color
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 0: return 'warning';
+      case 1: return 'success';
+      case 2: return 'danger';
+      default: return 'secondary';
+    }
+  };
+
   // 🔎 Apply filter
   const applyFilter = (criteria, data = bookings) => {
     setFilter(criteria);
     if (criteria === 'All') {
       setFiltered(data);
     } else {
-      setFiltered(data.filter(b => b.status === criteria));
+      // Filter by numeric status
+      const statusNumber = criteria === 'Pending' ? 0 : criteria === 'Accepted' ? 1 : 2;
+      setFiltered(data.filter(b => b.status === statusNumber));
     }
   };
 
@@ -56,7 +78,6 @@ const MyBookings = () => {
 
       if (!response.ok) throw new Error("Failed to cancel booking");
 
-      // Update state after successful cancel
       const updated = bookings.filter(b => b.id !== id);
       setBookings(updated);
       applyFilter(filter, updated);
@@ -73,30 +94,15 @@ const MyBookings = () => {
           <Card.Title className="d-flex justify-content-between align-items-center">
             My Bookings
             <ButtonGroup>
-              <Button
-                variant={filter === 'All' ? 'dark' : 'outline-dark'}
-                onClick={() => applyFilter('All')}
-              >
-                All
-              </Button>
-              <Button
-                variant={filter === 'Accepted' ? 'success' : 'outline-success'}
-                onClick={() => applyFilter('Accepted')}
-              >
-                Accepted
-              </Button>
-              <Button
-                variant={filter === 'Pending' ? 'warning' : 'outline-warning'}
-                onClick={() => applyFilter('Pending')}
-              >
-                Pending
-              </Button>
-              <Button
-                variant={filter === 'Cancelled' ? 'danger' : 'outline-danger'}
-                onClick={() => applyFilter('Cancelled')}
-              >
-                Cancelled
-              </Button>
+              {['All', 'Accepted', 'Pending', 'Cancelled'].map(status => (
+                <Button
+                  key={status}
+                  variant={filter === status ? 'dark' : 'outline-dark'}
+                  onClick={() => applyFilter(status)}
+                >
+                  {status}
+                </Button>
+              ))}
             </ButtonGroup>
           </Card.Title>
 
@@ -133,18 +139,12 @@ const MyBookings = () => {
                         <td>{start.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                         <td>
                           <Badge
-                            bg={
-                              b.status === 'Accepted'
-                                ? 'success'
-                                : b.status === 'Pending'
-                                ? 'warning'
-                                : 'secondary'
-                            }
+                            bg={getStatusColor(b.status)}
                             className="me-2"
                           >
-                            {b.status}
+                            {getStatusText(b.status)}
                           </Badge>
-                          {(b.status === 'Pending' || b.status === 'Accepted') && (
+                          {(b.status === 0 || b.status === 1) && (
                             <Button
                               size="sm"
                               variant="outline-danger"

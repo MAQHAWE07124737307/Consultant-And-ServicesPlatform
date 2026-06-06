@@ -39,7 +39,7 @@ const SelectSlot = ({ consultant, onConfirm }) => {
 
   return (
     <div className="container mt-4">
-      <h4>🕒 Select an Available Slot</h4>
+      <h4>Select an Available Slot</h4>
 
       
 

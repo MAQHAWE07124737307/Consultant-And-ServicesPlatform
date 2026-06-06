@@ -32,7 +32,7 @@ const SelectConsultant = ({ service, onSelect }) => {
   return (
     <div className="container mt-4">
       <h4 className="mb-4">
-        👤 Select a Consultant for <strong>{service.name}</strong>
+         Select a Consultant for <strong>{service.name}</strong>
       </h4>
 
       {loading ? (

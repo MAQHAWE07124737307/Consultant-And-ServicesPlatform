@@ -43,7 +43,7 @@ const UserDashboard = () => {
 
   return (
     <div className="container-fluid">
-      <h3 className="mb-4">Welcome back 👋</h3>
+      <h3 className="mb-4">Welcome back </h3>
 
       <Row className="mb-4">
         <Col md={3}>
