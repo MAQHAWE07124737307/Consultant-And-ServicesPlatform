@@ -89,7 +89,7 @@ jobs:
       - name: Pull docker  Docker image
         run: |
           echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER_NAME }}" --password-stdin
-          docker pull qhawe911/lwazi:test
+          docker pull qhawe911/lwazi:latest
 
 
       - name: Start application container
@@ -97,7 +97,7 @@ jobs:
           docker run -d \
             --name app \
             -p 8080:8080 \
-            qhawe911/lwazi:test
+            qhawe911/lwazi:latest
 
       - name: Wait for application startup
         run: sleep 20
