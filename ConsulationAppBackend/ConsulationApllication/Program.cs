@@ -97,7 +97,7 @@ builder.Services.AddScoped<TokenService>();
 var app = builder.Build();
 
 
-app.MapGet("/", () => Results.Redirect("/swagger"));
+app.MapGet("/", () => Results.Ok("API Running"));
 app.MapGet("/health", () => Results.Ok("Healthy"));
 
 app.UseSwagger();
