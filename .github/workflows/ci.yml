@@ -87,7 +87,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build Docker image
-        run: docker build -t myapp:test .
+        run: |
+         cd ./ConsulationAppBackend/ConsulationApllication
+         docker build -t qhawe911/lwazi:latest -f Dockerfile .
+
 
       - name: Start application container
         run: |
@@ -162,3 +165,8 @@ jobs:
 
     - name: Push Docker image
       run: docker push qhawe911/lwazi:latest
+run: |
+    docker build \
+      -t myapp:test \
+      -f ConsulationAppBackend/ConsulationApllication/Dockerfile \
+      ConsulationAppBackend/ConsulationApllication
