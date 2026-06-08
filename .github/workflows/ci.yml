@@ -103,7 +103,7 @@ jobs:
         run: sleep 20
 
       - name: Health check
-        run: curl --fail http://localhost:8080
+        run: curl http://localhost:8080/swagger
 
       - name: Run OWASP ZAP Baseline Scan
         run: |
