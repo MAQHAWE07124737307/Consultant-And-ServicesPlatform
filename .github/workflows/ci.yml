@@ -165,8 +165,3 @@ jobs:
 
     - name: Push Docker image
       run: docker push qhawe911/lwazi:latest
-run: |
-    docker build \
-      -t myapp:test \
-      -f ConsulationAppBackend/ConsulationApllication/Dockerfile \
-      ConsulationAppBackend/ConsulationApllication
