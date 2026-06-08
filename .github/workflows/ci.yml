@@ -86,10 +86,10 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Docker image
-        run: |
-         cd ./ConsulationAppBackend/ConsulationApllication
-         docker build -t qhawe911/lwazi:latest -f Dockerfile .
+      - name: Pull docker  Docker image
+        run: Login to Docker Hub
+          echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USER_NAME }}" --password-stdin
+          docker pull qhawe911/lwazi:test
 
 
       - name: Start application container
@@ -97,7 +97,7 @@ jobs:
           docker run -d \
             --name app \
             -p 8080:8080 \
-            myapp:test
+            qhawe911/lwazi:test
 
       - name: Wait for application startup
         run: sleep 20
